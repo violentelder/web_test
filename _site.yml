@@ -12,7 +12,7 @@ navbar:
       href: Page2.html
     - text: "Page3"
       href: Page3.html      
-    - text: "学习"
+    - text: "博客"
       menu:
         - text: "VS+QT 双击ui文件无法用Designer打开的处理办法汇总"
           href: Page4.1.html

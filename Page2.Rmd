@@ -7,7 +7,7 @@ output:
 
 # Show R script only
 
-```{r,eval=F}
+```{matlab,eval=F}
 x <- runif(10,0,1)
 y <- runif(10,0,1)
 plot(x,y,type="p")

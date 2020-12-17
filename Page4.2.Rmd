@@ -2,10 +2,9 @@
 title: "PCA主成分分析的数学推导及基于PCA的人脸识别训练函数代码实现（Matlab）"
 output:
   html_document:
+    toc: true
     df_print: paged
 ---
-
-@[TOC](目录)
 
 # 概述
 近期学习数字信号处理课程时，被要求了解PCA主成分分析的数学原理，并通过该原理完成人脸识别的代码。学习过程中对于其机理有所理解，将一些思路分享在本帖子中，欢迎大家一起讨论学习，和指正我的一些理解错误的地方。
@@ -40,7 +39,11 @@ Q = \frac{1}{n}P = \frac{1}{n}A^{T}A = \begin{pmatrix}
 		\end{pmatrix}
 $$
 对其进行奇异值分解，即可把他转换成为一个对角矩阵，即满足了PCA需要达到的两个要求
+
+
 1. **某方向上数据点方差尽可能的大**
+
+
 2. **特征协方差为0**
 
 由于P是一个对称矩阵，故可进行如下的奇异值分解
@@ -59,6 +62,7 @@ $\sigma _{1}$、$\sigma _{2}$为奇异值，U中则包含了$\sigma _{1}$、$\si
 # 基于PCA的人脸识别训练函数实现（Matlab）
 根据上述PCA的推导，以及其他大佬帖子的学习，使用Matlab实现了基于PCA的人脸信息训练函数，以下为函数代码
 详细代码及工程可移步Github获取：[https://github.com/violentelder/PCA_face.git](https://github.com/violentelder/PCA_face.git)
+
 ```erlang
  % --- PCA样本集训练函数
  function [W, imgmean, col_of_data, reference] = Training()
@@ -126,6 +130,7 @@ $\sigma _{1}$、$\sigma _{2}$为奇异值，U中则包含了$\sigma _{1}$、$\si
  reference = W'*imagedata;
  end
 ```
+
 # 参考引用
 1. **如何通俗易懂地讲解什么是 PCA 主成分分析**？[https://www.zhihu.com/question/41120789?sort=created](https://www.zhihu.com/question/41120789?sort=created)
 2. **matlab实现基于PCA的人脸识别算法** [https://blog.csdn.net/u012675539/article/details/50388169](https://blog.csdn.net/u012675539/article/details/50388169)

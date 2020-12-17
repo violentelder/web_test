@@ -375,7 +375,7 @@ $(document).ready(function () {
 </li>
 <li class="dropdown">
   <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
-    学习
+    博客
      
     <span class="caret"></span>
   </a>
@@ -407,8 +407,15 @@ $(document).ready(function () {
 
 </div>
 
+<div id="TOC">
+<ul>
+<li><a href="#概述">概述</a></li>
+<li><a href="#pca数学推导">PCA数学推导</a></li>
+<li><a href="#基于pca的人脸识别训练函数实现matlab">基于PCA的人脸识别训练函数实现（Matlab）</a></li>
+<li><a href="#参考引用">参考引用</a></li>
+</ul>
+</div>
 
-<p>@<a href="目录">TOC</a></p>
 <div id="概述" class="section level1">
 <h1>概述</h1>
 <p>近期学习数字信号处理课程时，被要求了解PCA主成分分析的数学原理，并通过该原理完成人脸识别的代码。学习过程中对于其机理有所理解，将一些思路分享在本帖子中，欢迎大家一起讨论学习，和指正我的一些理解错误的地方。</p>
@@ -429,7 +436,11 @@ Q = \frac{1}{n}P = \frac{1}{n}A^{T}A = \begin{pmatrix}
             Var(X) &amp; Cov(X,Y)\\ 
             Cov(X,Y) &amp; Var(Y)
         \end{pmatrix}
-\]</span> 对其进行奇异值分解，即可把他转换成为一个对角矩阵，即满足了PCA需要达到的两个要求 1. <strong>某方向上数据点方差尽可能的大</strong> 2. <strong>特征协方差为0</strong></p>
+\]</span> 对其进行奇异值分解，即可把他转换成为一个对角矩阵，即满足了PCA需要达到的两个要求</p>
+<ol style="list-style-type: decimal">
+<li><p><strong>某方向上数据点方差尽可能的大</strong></p></li>
+<li><p><strong>特征协方差为0</strong></p></li>
+</ol>
 <p>由于P是一个对称矩阵，故可进行如下的奇异值分解 <span class="math display">\[
 P = U\Sigma U^{T}
 \]</span> <span class="math inline">\(\Sigma\)</span>为对角矩阵 <span class="math display">\[

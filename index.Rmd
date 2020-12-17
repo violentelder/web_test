@@ -1,9 +1,22 @@
 ---
-title: "My Website"
+title: "ViolentElder's Website"
 output:
   html_document:
     df_print: paged
 ---
 
 Welcome to my website!  
-I am a student at SUSTech, my research is about xxx.
+I am a student at SUSTech, my research is about Image processing in UAV.
+
+***
+# Introduction
++ 个人信息
+  - 姓名: 吴文浩
+  - 出生年月：1996年4月20日
+  - 籍贯：云南省昆明市
+<div align="right">
+<img src="figs/Profile.jpg" alt="drawing" width="200"/>
+</div>
++ 2
+
+

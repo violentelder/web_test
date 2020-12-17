@@ -14,15 +14,21 @@ output:
  - **右键ui文件，选择打开方式**
  
  
- ![](https://img-blog.csdnimg.cn/20201023221107183.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3dlaXhpbl80MzU2MDQ4OQ==,size_16,color_FFFFFF,t_70#pic_center)
+<div align="center">
+<img src="https://img-blog.csdnimg.cn/20201023221107183.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3dlaXhpbl80MzU2MDQ4OQ==,size_16,color_FFFFFF,t_70" alt="drawing" />
+</div>
+
+ 
  
  - **点击添加按钮，添加Designer到打开方式中**（路径通常在\Qt\Qt5.7.0\5.7\msvc2015_64\bin下）
  
+<div align="center">
+ ![](https://img-blog.csdnimg.cn/20201023221245623.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3dlaXhpbl80MzU2MDQ4OQ==,size_16,color_FFFFFF,t_70)
+</div>
  
- ![](https://img-blog.csdnimg.cn/20201023221245623.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3dlaXhpbl80MzU2MDQ4OQ==,size_16,color_FFFFFF,t_70#pic_center)
- 
- 
+<div align="center">
 ![](https://img-blog.csdnimg.cn/20201023221428371.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3dlaXhpbl80MzU2MDQ4OQ==,size_16,color_FFFFFF,t_70#pic_center)
+</div>
 
  - **之后设置为默认值作为打开方式即可**
 
@@ -33,8 +39,9 @@ output:
 *（问题原因可能很多种，这里只写了我遇到的几种情况，如有其他情况欢迎分享）*
 
  **(1) 在QtDesigner（如：E:\Qt\Qt5.7.0\5.7\msvc2015_64\bin）所在路径下，将“Qt5WebEngineWidgets.dll”的后缀加一个”.bak”**
+ <div align="center">
 ![](https://img-blog.csdnimg.cn/20201023222306711.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3dlaXhpbl80MzU2MDQ4OQ==,size_16,color_FFFFFF,t_70#pic_center)
-
+ </div>
 
  **(2) 在QtDesigner所在路径下，将“Qt5WebEngineWidgets.dll”名字修改，比如 Qt5WebEngineWidgets222.dll**
 
