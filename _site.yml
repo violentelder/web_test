@@ -1,7 +1,7 @@
 name: "My Website"
 output_dir: "docs"  # docs directory of master branch
 navbar:
-  title: "xxx's website"
+  title: "Peter Wu"
   type: inverse
   left:
     - text: "Home"
@@ -12,16 +12,16 @@ navbar:
       href: Page2.html
     - text: "Page3"
       href: Page3.html      
-    - text: "Page4"
+    - text: "学习"
       menu:
-        - text: "Page4.1"
+        - text: "VS+QT 双击ui文件无法用Designer打开的处理办法汇总"
           href: Page4.1.html
-        - text: "Page4.2"
+        - text: "PCA主成分分析的数学推导及基于PCA的人脸识别训练函数代码实现（Matlab）"
           href: Page4.2.html
         - text: "Page4.3"
           href: Page4.3.html   
 output:
   html_document:
-    theme: cerulean
+    theme: flatly
     highlight: pygments
     

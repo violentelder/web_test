@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+
+
+
+<title>PCA主成分分析的数学推导及基于PCA的人脸识别训练函数代码实现（Matlab）</title>
+
+<script src="site_libs/jquery-1.11.3/jquery.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="site_libs/bootstrap-3.3.5/css/flatly.min.css" rel="stylesheet" />
+<script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
+<script src="site_libs/navigation-1.1/tabsets.js"></script>
+<script src="site_libs/accessible-code-block-0.0.1/empty-anchor.js"></script>
+<link href="site_libs/pagedtable-1.1/css/pagedtable.css" rel="stylesheet" />
+<script src="site_libs/pagedtable-1.1/js/pagedtable.js"></script>
+<link href="site_libs/anchor-sections-1.0/anchor-sections.css" rel="stylesheet" />
+<script src="site_libs/anchor-sections-1.0/anchor-sections.js"></script>
+
+<style type="text/css">
+  code{white-space: pre-wrap;}
+  span.smallcaps{font-variant: small-caps;}
+  span.underline{text-decoration: underline;}
+  div.column{display: inline-block; vertical-align: top; width: 50%;}
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  ul.task-list{list-style: none;}
+    </style>
+
+
+<style type="text/css">code{white-space: pre;}</style>
+<style type="text/css" data-origin="pandoc">
+code.sourceCode > span { display: inline-block; line-height: 1.25; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode { white-space: pre; position: relative; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+code.sourceCode { white-space: pre-wrap; }
+code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+
+</style>
+<script>
+// apply pandoc div.sourceCode style to pre.sourceCode instead
+(function() {
+  var sheets = document.styleSheets;
+  for (var i = 0; i < sheets.length; i++) {
+    if (sheets[i].ownerNode.dataset["origin"] !== "pandoc") continue;
+    try { var rules = sheets[i].cssRules; } catch (e) { continue; }
+    for (var j = 0; j < rules.length; j++) {
+      var rule = rules[j];
+      // check if there is a div.sourceCode rule
+      if (rule.type !== rule.STYLE_RULE || rule.selectorText !== "div.sourceCode") continue;
+      var style = rule.style.cssText;
+      // check if color or background-color is set
+      if (rule.style.color === '' && rule.style.backgroundColor === '') continue;
+      // replace div.sourceCode by a pre.sourceCode rule
+      sheets[i].deleteRule(j);
+      sheets[i].insertRule('pre.sourceCode{' + style + '}', j);
+    }
+  }
+})();
+</script>
+<style type="text/css">
+  pre:not([class]) {
+    background-color: white;
+  }
+</style>
+
+
+<style type="text/css">
+h1 {
+  font-size: 34px;
+}
+h1.title {
+  font-size: 38px;
+}
+h2 {
+  font-size: 30px;
+}
+h3 {
+  font-size: 24px;
+}
+h4 {
+  font-size: 18px;
+}
+h5 {
+  font-size: 16px;
+}
+h6 {
+  font-size: 12px;
+}
+.table th:not([align]) {
+  text-align: left;
+}
+</style>
+
+
+
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+code {
+  color: inherit;
+  background-color: rgba(0, 0, 0, 0.04);
+}
+img {
+  max-width:100%;
+}
+.tabbed-pane {
+  padding-top: 12px;
+}
+.html-widget {
+  margin-bottom: 20px;
+}
+button.code-folding-btn:focus {
+  outline: none;
+}
+summary {
+  display: list-item;
+}
+</style>
+
+
+<style type="text/css">
+/* padding for bootstrap navbar */
+body {
+  padding-top: 60px;
+  padding-bottom: 40px;
+}
+/* offset scroll position for anchor links (for fixed navbar)  */
+.section h1 {
+  padding-top: 65px;
+  margin-top: -65px;
+}
+.section h2 {
+  padding-top: 65px;
+  margin-top: -65px;
+}
+.section h3 {
+  padding-top: 65px;
+  margin-top: -65px;
+}
+.section h4 {
+  padding-top: 65px;
+  margin-top: -65px;
+}
+.section h5 {
+  padding-top: 65px;
+  margin-top: -65px;
+}
+.section h6 {
+  padding-top: 65px;
+  margin-top: -65px;
+}
+.dropdown-submenu {
+  position: relative;
+}
+.dropdown-submenu>.dropdown-menu {
+  top: 0;
+  left: 100%;
+  margin-top: -6px;
+  margin-left: -1px;
+  border-radius: 0 6px 6px 6px;
+}
+.dropdown-submenu:hover>.dropdown-menu {
+  display: block;
+}
+.dropdown-submenu>a:after {
+  display: block;
+  content: " ";
+  float: right;
+  width: 0;
+  height: 0;
+  border-color: transparent;
+  border-style: solid;
+  border-width: 5px 0 5px 5px;
+  border-left-color: #cccccc;
+  margin-top: 5px;
+  margin-right: -10px;
+}
+.dropdown-submenu:hover>a:after {
+  border-left-color: #ffffff;
+}
+.dropdown-submenu.pull-left {
+  float: none;
+}
+.dropdown-submenu.pull-left>.dropdown-menu {
+  left: -100%;
+  margin-left: 10px;
+  border-radius: 6px 0 6px 6px;
+}
+</style>
+
+<script>
+// manage active state of menu based on current page
+$(document).ready(function () {
+  // active menu anchor
+  href = window.location.pathname
+  href = href.substr(href.lastIndexOf('/') + 1)
+  if (href === "")
+    href = "index.html";
+  var menuAnchor = $('a[href="' + href + '"]');
+
+  // mark it active
+  menuAnchor.parent().addClass('active');
+
+  // if it's got a parent navbar menu mark it active as well
+  menuAnchor.closest('li.dropdown').addClass('active');
+});
+</script>
+
+<!-- tabsets -->
+
+<style type="text/css">
+.tabset-dropdown > .nav-tabs {
+  display: inline-table;
+  max-height: 500px;
+  min-height: 44px;
+  overflow-y: auto;
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs > li.active:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li.active:before {
+  content: "&#xe258;";
+  border: none;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs > li.active {
+  display: block;
+}
+
+.tabset-dropdown > .nav-tabs > li > a,
+.tabset-dropdown > .nav-tabs > li > a:focus,
+.tabset-dropdown > .nav-tabs > li > a:hover {
+  border: none;
+  display: inline-block;
+  border-radius: 4px;
+  background-color: transparent;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li {
+  display: block;
+  float: none;
+}
+
+.tabset-dropdown > .nav-tabs > li {
+  display: none;
+}
+</style>
+
+<!-- code folding -->
+
+
+
+
+</head>
+
+<body>
+
+
+<div class="container-fluid main-container">
+
+
+
+
+<div class="navbar navbar-inverse  navbar-fixed-top" role="navigation">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="index.html">Peter Wu</a>
+    </div>
+    <div id="navbar" class="navbar-collapse collapse">
+      <ul class="nav navbar-nav">
+        <li>
+  <a href="index.html">Home</a>
+</li>
+<li>
+  <a href="Page1.html">Page1</a>
+</li>
+<li>
+  <a href="Page2.html">Page2</a>
+</li>
+<li>
+  <a href="Page3.html">Page3</a>
+</li>
+<li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+    学习
+     
+    <span class="caret"></span>
+  </a>
+  <ul class="dropdown-menu" role="menu">
+    <li>
+      <a href="Page4.1.html">VS+QT 双击ui文件无法用Designer打开的处理办法汇总</a>
+    </li>
+    <li>
+      <a href="Page4.2.html">PCA主成分分析的数学推导及基于PCA的人脸识别训练函数代码实现（Matlab）</a>
+    </li>
+    <li>
+      <a href="Page4.3.html">Page4.3</a>
+    </li>
+  </ul>
+</li>
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        
+      </ul>
+    </div><!--/.nav-collapse -->
+  </div><!--/.container -->
+</div><!--/.navbar -->
+
+<div class="fluid-row" id="header">
+
+
+
+<h1 class="title toc-ignore">PCA主成分分析的数学推导及基于PCA的人脸识别训练函数代码实现（Matlab）</h1>
+
+</div>
+
+
+<p>@<a href="目录">TOC</a></p>
+<div id="概述" class="section level1">
+<h1>概述</h1>
+<p>近期学习数字信号处理课程时，被要求了解PCA主成分分析的数学原理，并通过该原理完成人脸识别的代码。学习过程中对于其机理有所理解，将一些思路分享在本帖子中，欢迎大家一起讨论学习，和指正我的一些理解错误的地方。</p>
+<p>学习一个技术，我认为需要按照它用来干什么，它是什么，它怎么实现的，我们怎么使用它这样的逻辑进行学习，故在学习PCA之前，首先得知道它用来干什么。</p>
+<p><strong>举个例子</strong>：对于一个的商品，他可能具有很多属性，包括它的各种性能参数，它的价格，它的售后服务等等。如果这些指标都可以被量化和数字化的话，那一个商品就可以认为是一个包含了很多维度（性能，价格等）的一个数据，那和这个商品同种类的商品我们就可以看做一个很大的数据集。 现在作为顾客我需要从中挑选出一个最好的商品，但是此刻我去进行比较的话，就意味着有太多维度需要对比了，那我就在想能不能用某个指标（比如性价比）这一个维度去进行评判，这样我的工作量就大大减少了嘛。而<strong>PCA</strong>就是出于这样的目的，所设计的通过数据降维从而便于后续运算或分析的一种数学方法。</p>
+</div>
+<div id="pca数学推导" class="section level1">
+<h1>PCA数学推导</h1>
+<p>PCA即主元分析，主要用于数据降维便于后续运算，其核心思想在于用一个新的坐标基来取代当前的坐标基（新坐标基的维度会比原始坐标基维度小），从而实现特征降维。<strong>降维必然带来特征的损失</strong>，为了确保在降维的过程中，损失的特征尽可能的少，就需要降维后原始数据在新坐标基上的投影尽可能分散。换而言之即降维后某方向上数据点方差尽可能的大。设现在有一维数据集记做<span class="math inline">\((X0,Y0)\)</span>，按列解读，可以得到两个向量<strong>X0,Y0</strong>，此时<strong>X0,Y0</strong>即可看做是数据集的两个特征</p>
+<p>以特征<strong>X0</strong>为例，其方差可以写作 <span class="math display">\[
+Var(X0) = \frac{1}{n}\sum\limits_{{i = 0}}^{{n}}\left (X0_{i} -\bar{X}  \right )^{2}.
+\]</span> 对<strong>X0</strong>进行中心化操作，即减去均值后的向量记做<strong>X</strong>，我们有 <span class="math display">\[
+Var(X) = \frac{1}{n}\sum\limits_{{i = 0}}^{{n}}X_{i}^{2}
+\]</span> 同理我们可以求得中心化后特征<strong>Y</strong>及其方差。为了减少特征的冗余信息，我们希望经过降维后的各个特征之间互不相关，而相关性可以用两者的协方差来衡量，即要求其协方差为0。对于中心化后的特征<strong>X,Y</strong>，其协方差可以写为 <span class="math display">\[
+Cov(X,Y) = \frac{1}{n}\sum\limits_{{i = 0}}^{{n}}X_{i}^{2}Y_{i}^{2}
+\]</span> 对于这组中心化后的数据集<strong>A = (X,Y)</strong>，其协方差矩阵可以写为 （这里直接写了协方差矩阵公式，其详细的推导建议看<strong>参考引用</strong>中的第一篇帖子） <span class="math display">\[
+Q = \frac{1}{n}P = \frac{1}{n}A^{T}A = \begin{pmatrix}
+            Var(X) &amp; Cov(X,Y)\\ 
+            Cov(X,Y) &amp; Var(Y)
+        \end{pmatrix}
+\]</span> 对其进行奇异值分解，即可把他转换成为一个对角矩阵，即满足了PCA需要达到的两个要求 1. <strong>某方向上数据点方差尽可能的大</strong> 2. <strong>特征协方差为0</strong></p>
+<p>由于P是一个对称矩阵，故可进行如下的奇异值分解 <span class="math display">\[
+P = U\Sigma U^{T}
+\]</span> <span class="math inline">\(\Sigma\)</span>为对角矩阵 <span class="math display">\[
+\Sigma =\begin{pmatrix}
+            \sigma _{1} &amp; 0\\ 
+            0 &amp; \sigma _{2}
+        \end{pmatrix}
+\]</span> <span class="math inline">\(\sigma _{1}\)</span>、<span class="math inline">\(\sigma _{2}\)</span>为奇异值，U中则包含了<span class="math inline">\(\sigma _{1}\)</span>、<span class="math inline">\(\sigma _{2}\)</span>对应的奇异向量<span class="math inline">\(e _{1}\)</span>、<span class="math inline">\(e_{2}\)</span>，<strong>以其中奇异值最大奇异向量作为新的坐标基</strong>，代入求得数据在该坐标基上的新坐标，即可实现PCA降维。</p>
+</div>
+<div id="基于pca的人脸识别训练函数实现matlab" class="section level1">
+<h1>基于PCA的人脸识别训练函数实现（Matlab）</h1>
+<p>根据上述PCA的推导，以及其他大佬帖子的学习，使用Matlab实现了基于PCA的人脸信息训练函数，以下为函数代码 详细代码及工程可移步Github获取：<a href="https://github.com/violentelder/PCA_face.git">https://github.com/violentelder/PCA_face.git</a></p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode erlang"><code class="sourceCode erlang"><span id="cb1-1"><a href="#cb1-1"></a> <span class="co">% --- PCA样本集训练函数</span></span>
+<span id="cb1-2"><a href="#cb1-2"></a> <span class="ch">function</span> <span class="fu">[</span><span class="va">W</span><span class="fu">,</span> <span class="ch">imgmean</span><span class="fu">,</span> <span class="ch">col_of_data</span><span class="fu">,</span> <span class="ch">reference</span><span class="fu">]</span> <span class="op">=</span> <span class="va">Training</span><span class="fu">()</span></span>
+<span id="cb1-3"><a href="#cb1-3"></a> <span class="co">% W             PCA后协方差矩阵的特征向量组成的投影子空间</span></span>
+<span id="cb1-4"><a href="#cb1-4"></a> <span class="co">% imgmean       样本集列向量化后得出的每一行的均值（去中心化）</span></span>
+<span id="cb1-5"><a href="#cb1-5"></a> <span class="co">% col_of_data   样本集图像数</span></span>
+<span id="cb1-6"><a href="#cb1-6"></a> <span class="co">% reference     样本集在新坐标基下的表达矩阵</span></span>
+<span id="cb1-7"><a href="#cb1-7"></a> <span class="ch">global</span> <span class="ch">pathname</span></span>
+<span id="cb1-8"><a href="#cb1-8"></a> <span class="ch">global</span> <span class="ch">img_path_list</span></span>
+<span id="cb1-9"><a href="#cb1-9"></a> <span class="co">% 批量读取指定文件夹下的图片128*128</span></span>
+<span id="cb1-10"><a href="#cb1-10"></a> <span class="ch">pathname</span> <span class="op">=</span> <span class="ch">&#39;D:\Project\PCA_face\yale&#39;</span><span class="fu">;</span></span>
+<span id="cb1-11"><a href="#cb1-11"></a> <span class="ch">img_path_list</span> <span class="op">=</span> <span class="fu">dir(strcat(</span><span class="ch">pathname</span><span class="fu">,</span><span class="ch">&#39;\*.bmp&#39;</span><span class="fu">));</span></span>
+<span id="cb1-12"><a href="#cb1-12"></a> <span class="ch">img_num</span> <span class="op">=</span> <span class="fu">length(</span><span class="ch">img_path_list</span><span class="fu">);</span></span>
+<span id="cb1-13"><a href="#cb1-13"></a> <span class="ch">imagedata</span> <span class="op">=</span> <span class="fu">[];</span></span>
+<span id="cb1-14"><a href="#cb1-14"></a> <span class="kw">if</span> <span class="ch">img_num</span> <span class="op">&gt;</span><span class="dv">0</span></span>
+<span id="cb1-15"><a href="#cb1-15"></a> <span class="ch">for</span> <span class="ch">j</span> <span class="op">=</span> <span class="dv">1</span><span class="fu">:</span><span class="ch">img_num</span></span>
+<span id="cb1-16"><a href="#cb1-16"></a> <span class="ch">img_name</span> <span class="op">=</span> <span class="fu">img_path_list(</span><span class="ch">j</span><span class="fu">).</span><span class="ch">name</span><span class="fu">;</span></span>
+<span id="cb1-17"><a href="#cb1-17"></a> <span class="ch">temp</span> <span class="op">=</span> <span class="fu">imread(strcat(</span><span class="ch">pathname</span><span class="fu">,</span> <span class="ch">&#39;/&#39;</span><span class="fu">,</span> <span class="ch">img_name</span><span class="fu">));</span></span>
+<span id="cb1-18"><a href="#cb1-18"></a> <span class="co">%将图像二维矩阵转换为列向量，同时double化便于之后的运算</span></span>
+<span id="cb1-19"><a href="#cb1-19"></a> <span class="ch">temp</span> <span class="op">=</span> <span class="fu">double(temp(:));</span></span>
+<span id="cb1-20"><a href="#cb1-20"></a> <span class="ch">imagedata</span> <span class="op">=</span> <span class="fu">[</span><span class="ch">imagedata</span><span class="fu">,</span> <span class="ch">temp</span><span class="fu">];</span></span>
+<span id="cb1-21"><a href="#cb1-21"></a> <span class="kw">end</span></span>
+<span id="cb1-22"><a href="#cb1-22"></a> <span class="kw">end</span></span>
+<span id="cb1-23"><a href="#cb1-23"></a> <span class="co">%获取imagedata的列数，即样本图像数</span></span>
+<span id="cb1-24"><a href="#cb1-24"></a> <span class="ch">col_of_data</span> <span class="op">=</span> <span class="fu">size(</span><span class="ch">imagedata</span><span class="fu">,</span><span class="dv">2</span><span class="fu">);</span></span>
+<span id="cb1-25"><a href="#cb1-25"></a> <span class="co">% 得到矩阵每一行的均值，并组成一个列向量</span></span>
+<span id="cb1-26"><a href="#cb1-26"></a> <span class="ch">imgmean</span> <span class="op">=</span> <span class="fu">mean(</span><span class="ch">imagedata</span><span class="fu">,</span><span class="dv">2</span><span class="fu">);</span></span>
+<span id="cb1-27"><a href="#cb1-27"></a> </span>
+<span id="cb1-28"><a href="#cb1-28"></a> <span class="co">% 1.去中心化</span></span>
+<span id="cb1-29"><a href="#cb1-29"></a> <span class="ch">for</span> <span class="ch">i</span> <span class="op">=</span> <span class="dv">1</span><span class="fu">:</span><span class="ch">col_of_data</span></span>
+<span id="cb1-30"><a href="#cb1-30"></a> <span class="fu">imagedata(:,</span><span class="ch">i</span><span class="fu">)</span> <span class="op">=</span> <span class="fu">imagedata(:,</span><span class="ch">i</span><span class="fu">)</span> <span class="op">-</span> <span class="ch">imgmean</span><span class="fu">;</span></span>
+<span id="cb1-31"><a href="#cb1-31"></a> <span class="kw">end</span></span>
+<span id="cb1-32"><a href="#cb1-32"></a> </span>
+<span id="cb1-33"><a href="#cb1-33"></a> <span class="co">%求协方差矩阵covMat</span></span>
+<span id="cb1-34"><a href="#cb1-34"></a> <span class="ch">covMat</span> <span class="op">=</span> <span class="ch">imagedata&#39; * imagedata;</span></span>
+<span id="cb1-35"><a href="#cb1-35"></a> <span class="co">% 特征向量：COEFF</span></span>
+<span id="cb1-36"><a href="#cb1-36"></a> <span class="co">% 特征值：latent</span></span>
+<span id="cb1-37"><a href="#cb1-37"></a> <span class="co">% 每个特征值占比：explained</span></span>
+<span id="cb1-38"><a href="#cb1-38"></a> <span class="fu">[</span><span class="va">COEFF</span><span class="fu">,</span> <span class="ch">latent</span><span class="fu">,</span> <span class="ch">explained</span><span class="fu">]</span> <span class="op">=</span> <span class="fu">pcacov(</span><span class="ch">covMat</span><span class="fu">);</span></span>
+<span id="cb1-39"><a href="#cb1-39"></a> <span class="co">% 选择构成95%能量的特征值</span></span>
+<span id="cb1-40"><a href="#cb1-40"></a> <span class="ch">i</span> <span class="op">=</span> <span class="dv">1</span><span class="fu">;</span></span>
+<span id="cb1-41"><a href="#cb1-41"></a> <span class="ch">proportion</span> <span class="op">=</span> <span class="dv">0</span><span class="fu">;</span></span>
+<span id="cb1-42"><a href="#cb1-42"></a> <span class="fu">while(</span><span class="ch">proportion</span> <span class="op">&lt;</span> <span class="dv">95</span><span class="fu">)</span></span>
+<span id="cb1-43"><a href="#cb1-43"></a> <span class="ch">proportion</span> <span class="op">=</span> <span class="ch">proportion</span> <span class="op">+</span> <span class="fu">explained(</span><span class="ch">i</span><span class="fu">);</span></span>
+<span id="cb1-44"><a href="#cb1-44"></a> <span class="ch">i</span> <span class="op">=</span> <span class="ch">i</span><span class="op">+</span><span class="dv">1</span><span class="fu">;</span></span>
+<span id="cb1-45"><a href="#cb1-45"></a> <span class="kw">end</span></span>
+<span id="cb1-46"><a href="#cb1-46"></a> </span>
+<span id="cb1-47"><a href="#cb1-47"></a> <span class="co">% %第二种求解特征值及特征向量的方法，协方差矩阵Q = 1/n *P</span></span>
+<span id="cb1-48"><a href="#cb1-48"></a> <span class="co">% 用eig相当于是对P进行奇异值分解，而pcacov是对Q进行分解</span></span>
+<span id="cb1-49"><a href="#cb1-49"></a> <span class="co">% 获得特征向量eiv及特征值eic</span></span>
+<span id="cb1-50"><a href="#cb1-50"></a> <span class="co">% [eiv, eic] = eig(covMat,&#39;nobalance&#39;);</span></span>
+<span id="cb1-51"><a href="#cb1-51"></a> <span class="co">% L_eig_vec = [ ];</span></span>
+<span id="cb1-52"><a href="#cb1-52"></a> <span class="co">% for i = 1:size(eiv)</span></span>
+<span id="cb1-53"><a href="#cb1-53"></a> <span class="co">%     if (eic(i,i) &gt; 10000)</span></span>
+<span id="cb1-54"><a href="#cb1-54"></a> <span class="co">%         L_eig_vec = [L_eig_vec, eiv(:,i)];    %选取特征值大于1的特征向量</span></span>
+<span id="cb1-55"><a href="#cb1-55"></a> <span class="co">%     end</span></span>
+<span id="cb1-56"><a href="#cb1-56"></a> <span class="co">% end</span></span>
+<span id="cb1-57"><a href="#cb1-57"></a> <span class="co">% Ei_Face = imagedata * L_eig_vec;</span></span>
+<span id="cb1-58"><a href="#cb1-58"></a> </span>
+<span id="cb1-59"><a href="#cb1-59"></a> <span class="co">% 特征脸</span></span>
+<span id="cb1-60"><a href="#cb1-60"></a> <span class="va">W</span> <span class="op">=</span> <span class="ch">imagedata</span> <span class="op">*</span> <span class="va">COEFF</span><span class="fu">;</span>    <span class="co">% N*M阶</span></span>
+<span id="cb1-61"><a href="#cb1-61"></a> <span class="va">W</span> <span class="op">=</span> <span class="va">W</span><span class="fu">(:,</span><span class="dv">1</span><span class="fu">:</span><span class="ch">i</span> <span class="op">-</span> <span class="dv">1</span><span class="fu">);</span>           <span class="co">% N*p阶</span></span>
+<span id="cb1-62"><a href="#cb1-62"></a> </span>
+<span id="cb1-63"><a href="#cb1-63"></a> <span class="co">% 训练样本在新坐标基下的表达矩阵 p*M</span></span>
+<span id="cb1-64"><a href="#cb1-64"></a> <span class="ch">reference</span> <span class="op">=</span> <span class="va">W</span><span class="ch">&#39;*imagedata;</span></span>
+<span id="cb1-65"><a href="#cb1-65"></a> <span class="kw">end</span></span></code></pre></div>
+</div>
+<div id="参考引用" class="section level1">
+<h1>参考引用</h1>
+<ol style="list-style-type: decimal">
+<li><strong>如何通俗易懂地讲解什么是 PCA 主成分分析</strong>？<a href="https://www.zhihu.com/question/41120789?sort=created">https://www.zhihu.com/question/41120789?sort=created</a></li>
+<li><strong>matlab实现基于PCA的人脸识别算法</strong> <a href="https://blog.csdn.net/u012675539/article/details/50388169">https://blog.csdn.net/u012675539/article/details/50388169</a></li>
+</ol>
+</div>
+
+
+
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+function bootstrapStylePandocTables() {
+  $('tr.odd').parent('tbody').parent('table').addClass('table table-condensed');
+}
+$(document).ready(function () {
+  bootstrapStylePandocTables();
+});
+
+
+</script>
+
+<!-- tabsets -->
+
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+
+$(document).ready(function () {
+  $('.tabset-dropdown > .nav-tabs > li').click(function () {
+    $(this).parent().toggleClass('nav-tabs-open')
+  });
+});
+</script>
+
+<!-- code folding -->
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>

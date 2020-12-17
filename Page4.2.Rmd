@@ -1,10 +1,132 @@
 ---
-title: "Page4.2"
+title: "PCA主成分分析的数学推导及基于PCA的人脸识别训练函数代码实现（Matlab）"
 output:
   html_document:
     df_print: paged
 ---
 
-**Computing and Programming for Environmental Research (ESE5023)**  
-https://zhu-group.github.io/ese5023  
+@[TOC](目录)
+
+# 概述
+近期学习数字信号处理课程时，被要求了解PCA主成分分析的数学原理，并通过该原理完成人脸识别的代码。学习过程中对于其机理有所理解，将一些思路分享在本帖子中，欢迎大家一起讨论学习，和指正我的一些理解错误的地方。
+
+学习一个技术，我认为需要按照它用来干什么，它是什么，它怎么实现的，我们怎么使用它这样的逻辑进行学习，故在学习PCA之前，首先得知道它用来干什么。
+
+**举个例子**：对于一个的商品，他可能具有很多属性，包括它的各种性能参数，它的价格，它的售后服务等等。如果这些指标都可以被量化和数字化的话，那一个商品就可以认为是一个包含了很多维度（性能，价格等）的一个数据，那和这个商品同种类的商品我们就可以看做一个很大的数据集。
+现在作为顾客我需要从中挑选出一个最好的商品，但是此刻我去进行比较的话，就意味着有太多维度需要对比了，那我就在想能不能用某个指标（比如性价比）这一个维度去进行评判，这样我的工作量就大大减少了嘛。而**PCA**就是出于这样的目的，所设计的通过数据降维从而便于后续运算或分析的一种数学方法。
+
+# PCA数学推导
+
+PCA即主元分析，主要用于数据降维便于后续运算，其核心思想在于用一个新的坐标基来取代当前的坐标基（新坐标基的维度会比原始坐标基维度小），从而实现特征降维。**降维必然带来特征的损失**，为了确保在降维的过程中，损失的特征尽可能的少，就需要降维后原始数据在新坐标基上的投影尽可能分散。换而言之即降维后某方向上数据点方差尽可能的大。设现在有一维数据集记做$(X0,Y0)$，按列解读，可以得到两个向量**X0,Y0**，此时**X0,Y0**即可看做是数据集的两个特征
+
+以特征**X0**为例，其方差可以写作
+$$
+Var(X0) = \frac{1}{n}\sum\limits_{{i = 0}}^{{n}}\left (X0_{i} -\bar{X}  \right )^{2}.
+$$
+对**X0**进行中心化操作，即减去均值后的向量记做**X**，我们有
+$$
+Var(X) = \frac{1}{n}\sum\limits_{{i = 0}}^{{n}}X_{i}^{2}
+$$
+同理我们可以求得中心化后特征**Y**及其方差。为了减少特征的冗余信息，我们希望经过降维后的各个特征之间互不相关，而相关性可以用两者的协方差来衡量，即要求其协方差为0。对于中心化后的特征**X,Y**，其协方差可以写为
+$$
+Cov(X,Y) = \frac{1}{n}\sum\limits_{{i = 0}}^{{n}}X_{i}^{2}Y_{i}^{2}
+$$
+对于这组中心化后的数据集**A = (X,Y)**，其协方差矩阵可以写为
+（这里直接写了协方差矩阵公式，其详细的推导建议看**参考引用**中的第一篇帖子）
+$$
+Q = \frac{1}{n}P = \frac{1}{n}A^{T}A = \begin{pmatrix}
+			Var(X) & Cov(X,Y)\\ 
+			Cov(X,Y) & Var(Y)
+		\end{pmatrix}
+$$
+对其进行奇异值分解，即可把他转换成为一个对角矩阵，即满足了PCA需要达到的两个要求
+1. **某方向上数据点方差尽可能的大**
+2. **特征协方差为0**
+
+由于P是一个对称矩阵，故可进行如下的奇异值分解
+$$
+P = U\Sigma U^{T}
+$$
+$\Sigma$为对角矩阵
+$$
+\Sigma =\begin{pmatrix}
+			\sigma _{1} & 0\\ 
+			0 & \sigma _{2}
+		\end{pmatrix}
+$$
+$\sigma _{1}$、$\sigma _{2}$为奇异值，U中则包含了$\sigma _{1}$、$\sigma _{2}$对应的奇异向量$e _{1}$、$e_{2}$，**以其中奇异值最大奇异向量作为新的坐标基**，代入求得数据在该坐标基上的新坐标，即可实现PCA降维。
+
+# 基于PCA的人脸识别训练函数实现（Matlab）
+根据上述PCA的推导，以及其他大佬帖子的学习，使用Matlab实现了基于PCA的人脸信息训练函数，以下为函数代码
+详细代码及工程可移步Github获取：[https://github.com/violentelder/PCA_face.git](https://github.com/violentelder/PCA_face.git)
+```erlang
+ % --- PCA样本集训练函数
+ function [W, imgmean, col_of_data, reference] = Training()
+ % W             PCA后协方差矩阵的特征向量组成的投影子空间
+ % imgmean       样本集列向量化后得出的每一行的均值（去中心化）
+ % col_of_data   样本集图像数
+ % reference     样本集在新坐标基下的表达矩阵
+ global pathname
+ global img_path_list
+ % 批量读取指定文件夹下的图片128*128
+ pathname = 'D:\Project\PCA_face\yale';
+ img_path_list = dir(strcat(pathname,'\*.bmp'));
+ img_num = length(img_path_list);
+ imagedata = [];
+ if img_num >0
+ for j = 1:img_num
+ img_name = img_path_list(j).name;
+ temp = imread(strcat(pathname, '/', img_name));
+ %将图像二维矩阵转换为列向量，同时double化便于之后的运算
+ temp = double(temp(:));
+ imagedata = [imagedata, temp];
+ end
+ end
+ %获取imagedata的列数，即样本图像数
+ col_of_data = size(imagedata,2);
+ % 得到矩阵每一行的均值，并组成一个列向量
+ imgmean = mean(imagedata,2);
+ 
+ % 1.去中心化
+ for i = 1:col_of_data
+ imagedata(:,i) = imagedata(:,i) - imgmean;
+ end
+ 
+ %求协方差矩阵covMat
+ covMat = imagedata' * imagedata;
+ % 特征向量：COEFF
+ % 特征值：latent
+ % 每个特征值占比：explained
+ [COEFF, latent, explained] = pcacov(covMat);
+ % 选择构成95%能量的特征值
+ i = 1;
+ proportion = 0;
+ while(proportion < 95)
+ proportion = proportion + explained(i);
+ i = i+1;
+ end
+ 
+ % %第二种求解特征值及特征向量的方法，协方差矩阵Q = 1/n *P
+ % 用eig相当于是对P进行奇异值分解，而pcacov是对Q进行分解
+ % 获得特征向量eiv及特征值eic
+ % [eiv, eic] = eig(covMat,'nobalance');
+ % L_eig_vec = [ ];
+ % for i = 1:size(eiv)
+ %     if (eic(i,i) > 10000)
+ %         L_eig_vec = [L_eig_vec, eiv(:,i)];    %选取特征值大于1的特征向量
+ %     end
+ % end
+ % Ei_Face = imagedata * L_eig_vec;
+ 
+ % 特征脸
+ W = imagedata * COEFF;    % N*M阶
+ W = W(:,1:i - 1);           % N*p阶
+ 
+ % 训练样本在新坐标基下的表达矩阵 p*M
+ reference = W'*imagedata;
+ end
+```
+# 参考引用
+1. **如何通俗易懂地讲解什么是 PCA 主成分分析**？[https://www.zhihu.com/question/41120789?sort=created](https://www.zhihu.com/question/41120789?sort=created)
+2. **matlab实现基于PCA的人脸识别算法** [https://blog.csdn.net/u012675539/article/details/50388169](https://blog.csdn.net/u012675539/article/details/50388169)
 
